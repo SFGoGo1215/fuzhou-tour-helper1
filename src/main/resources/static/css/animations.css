@@ -1,0 +1,45 @@
+// 初始化3D景点卡片
+function initSpotCards(spots) {
+    const container = document.getElementById('spot-container');
+    let html = '';
+
+    spots.forEach(spot => {
+        html += `
+        <div class="spot-card">
+            <div class="card-inner">
+                <div class="card-front">
+                    <img src="/images/spots/${spot.name}.jpg" alt="${spot.shortDesc}">
+                    <h3>${spot.name}</h3>
+                    <p>${spot.shortDesc}</p>
+                </div>
+                <div class="card-back">
+                    <h3>历史溯源</h3>
+                    <div class="history-content">${spot.history}</div>
+                </div>
+            </div>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+
+    // 绑定鼠标追踪事件
+    document.querySelectorAll('.spot-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const angles = AnimationUtils.calculateRotation(
+                e.clientX, e.clientY, rect.width, rect.height
+            );
+            card.querySelector('.card-inner').style.transform =
+                `rotateX(${angles[0]}deg) rotateY(${angles[1]}deg)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.querySelector('.card-inner').style.transform = '';
+        });
+    });
+}
+
+// 获取景点数据
+fetch('/spots')
+    .then(response => response.json())
+    .then(data => initSpotCards(data));
